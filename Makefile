@@ -5,3 +5,7 @@ help:
 	@echo "  kind-up     - create kind cluster"
 	@echo "  kind-down   - delete kind cluster"
 	@echo "  miniblue-docker - run miniblue via docker"
+
+.PHONY: bootstrap
+bootstrap:
+	bash scripts/00_bootstrap.sh

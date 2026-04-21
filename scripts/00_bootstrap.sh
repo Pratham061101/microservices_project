@@ -43,31 +43,34 @@ if ! groups | grep -q "\bdocker\b"; then
   echo "[bootstrap] NOTE: you may need to log out/in for group change to apply"
 fi
 
-# kubectl
-if ! command -v kubectl >/dev/null 2>&1; then
-  echo "[bootstrap] installing kubectl (apt)..."
-  sudo apt-get install -y kubectl
-else
-  echo "[bootstrap] kubectl already installed"
-fi
+##########################
+#kubectl
+sudo apt-get update
+sudo apt-get install -y ca-certificates curl gnupg
 
-# kind
-if ! command -v kind >/dev/null 2>&1; then
-  echo "[bootstrap] installing kind..."
-  curl -Lo /tmp/kind https://kind.sigs.k8s.io/dl/latest/kind-linux-amd64
-  chmod +x /tmp/kind
-  sudo mv /tmp/kind /usr/local/bin/kind
-else
-  echo "[bootstrap] kind already installed"
-fi
+sudo install -m 0755 -d /etc/apt/keyrings
+curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.30/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+sudo chmod 0644 /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+
+echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.30/deb/ /" | \
+  sudo tee /etc/apt/sources.list.d/kubernetes.list
+
+sudo apt-get update
+sudo apt-get install -y kubectl
+
+##########################
+
+#kind
+curl -Lo ./kind https://kind.sigs.k8s.io/dl/latest/kind-linux-amd64
+chmod +x ./kind
+sudo mv ./kind /usr/local/bin/kind
+kind version
+#######################################
 
 # helm
-if ! command -v helm >/dev/null 2>&1; then
-  echo "[bootstrap] installing helm..."
-  curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
-else
-  echo "[bootstrap] helm already installed"
-fi
+curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+helm version
+##########################
 
 echo "[bootstrap] versions:"
 git --version || true
